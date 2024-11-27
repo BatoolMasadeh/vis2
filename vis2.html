@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Accidents and Weather Conditions</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.24.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.23.0"></script>
+</head>
+<body>
+    <h1>Traffic Accidents and Weather Conditions</h1>
+    <div id="vis"></div>
+
+    <script>
+        const spec = {
+          "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+          "title": "Traffic Accidents and Weather Conditions",
+          "data": {
+            "url": "https://raw.githubusercontent.com/BatoolMasadeh/cleaned-data/a6d6d9261d66e94c0d26f5403085b091f2765ab5/Cleaned_Merged_Accidents_and_Weather_Data.csv"
+          },
+          "vconcat": [
+            {
+              "width": 800,
+              "height": 300,
+              "mark": {
+                "type": "point",
+                "tooltip": true
+              },
+              "encoding": {
+                "x": {
+                  "field": "date",
+                  "type": "temporal",
+                  "title": "Date"
+                },
+                "y": {
+                  "field": "tempmax",
+                  "type": "quantitative",
+                  "title": "Maximum Temperature (°C)"
+                },
+                "color": {
+                  "condition": {
+                    "param": "brush",
+                    "field": "conditions",
+                    "type": "nominal",
+                    "scale": {
+                      "domain": ["Clear", "Partially cloudy", "Rain", "Foggy", "Snowy"],
+                      "range": ["#e7ba52", "#aec7e8", "#1f77b4", "#a7a7a7", "#9467bd"]
+                    }
+                  },
+                  "value": "lightgray"
+                },
+                "size": {
+                  "aggregate": "count",
+                  "field": "acci_id",
+                  "title": "Number of Accidents",
+                  "type": "quantitative"
+                }
+              },
+              "params": [
+                {
+                  "name": "brush",
+                  "select": {"type": "interval", "encodings": ["x"]}
+                }
+              ],
+              "transform": [
+                {"filter": {"param": "click"}}
+              ],
+              "config": {
+                "transition": {
+                  "duration": 500
+                }
+              }
+            },
+            {
+              "width": 800,
+              "height": 200,
+              "mark": {
+                "type": "bar",
+                "tooltip": true
+              },
+              "encoding": {
+                "x": {
+                  "aggregate": "count",
+                  "field": "acci_id",
+                  "title": "Total Accidents"
+                },
+                "y": {
+                  "field": "conditions",
+                  "type": "nominal",
+                  "title": "Weather Conditions"
+                },
+                "color": {
+                  "condition": {
+                    "param": "click",
+                    "field": "conditions",
+                    "scale": {
+                      "domain": ["Clear", "Partially cloudy", "Rain", "Foggy", "Snowy"],
+                      "range": ["#e7ba52", "#aec7e8", "#1f77b4", "#a7a7a7", "#9467bd"]
+                    }
+                  },
+                  "value": "lightgray"
+                }
+              },
+              "params": [
+                {
+                  "name": "click",
+                  "select": {"type": "point", "encodings": ["color"]}
+                }
+              ],
+              "transform": [{"filter": {"param": "brush"}}],
+              "config": {
+                "transition": {
+                  "duration": 500
+                }
+              }
+            }
+          ]
+        };
+
+        vegaEmbed('#vis', spec).catch(console.error);
+    </script>
+</body>
+</html>
